@@ -1,0 +1,12 @@
+{
+  "name": "Flutter DevContainer",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceFolder": "/workspaces",
+  "extensions": [
+    "Dart-Code.flutter",
+    "Dart-Code.dart-code"
+  ],
+  "postCreateCommand": "flutter doctor"
+}
