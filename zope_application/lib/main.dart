@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: "test1@gmail.com", password: "password");
+  // await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  //     email: "test1@gmail.com", password: "password");
   runApp(const MyApp());
 }
 
@@ -31,41 +42,80 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
 
+class ShoppingItem {
+  String name;
+  bool checked;
+
+  ShoppingItem(this.name, {this.checked = false});
+}
+
+class StoreItem {
+  String name;
+  List<ShoppingItem> list;
+
+  StoreItem(this.name, {this.list = const []});
+}
+
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  final String title = "Zope";
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final List<StoreItem> _stores = [
+    StoreItem("Costco", list: [
+      ShoppingItem("bread"),
+      ShoppingItem("milk"),
+      ShoppingItem("cheese"),
+    ]),
+    StoreItem("King Soopers", list: [
+      ShoppingItem("bread"),
+      ShoppingItem("milk"),
+    ]),
+  ];
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  List<Widget> getStoreThings(StoreItem store) {
+    List<Widget> list = [];
+
+    list.add(Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(store.name),
+      ),
+    ));
+
+    for (ShoppingItem item in store.list) {
+      list.add(InkWell(
+        onTap: () {
+          setState(() {
+            item.checked = !item.checked;
+          });
+        },
+        child: Row(
+          children: [
+            Checkbox(
+              value: item.checked,
+              onChanged: (bool? value) {
+                setState(() {
+                  item.checked = value!;
+                });
+              },
+            ),
+            Text(item.name)
+          ],
+        ),
+      ));
+    }
+    return list;
   }
 
   @override
@@ -85,41 +135,20 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: [
+          IconButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('This is a snackbar')));
+              },
+              icon: const Icon(Icons.person_rounded))
+        ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      body: ListView(
+        children: [for (StoreItem _store in _stores) getStoreThings(_store)]
+            .expand((x) => x)
+            .toList(), // https://stackoverflow.com/questions/21826342/how-do-i-combine-two-lists-in-dart
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
