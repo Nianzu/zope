@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "28196557637",
+    "project_id": "zope-df3b9",
+    "storage_bucket": "zope-df3b9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28196557637:android:03b5182bfee045a4b1242c",
+        "android_client_info": {
+          "package_name": "com.example.zope_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEJxD38IPX89thzRkj7jmIZ1BJqJHrlLo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28196557637:android:db4e2229f702a740b1242c",
+        "android_client_info": {
+          "package_name": "com.zope.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEJxD38IPX89thzRkj7jmIZ1BJqJHrlLo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
