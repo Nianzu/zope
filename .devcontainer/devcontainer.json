@@ -3,10 +3,23 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+  "runArgs": [
+    "--network=host",
+    "--cap-add=SYS_PTRACE",
+    "--security-opt=seccomp:unconfined",
+    "--security-opt=apparmor:unconfined",
+    "--volume=/tmp/.X11-unix:/tmp/.X11-unix",
+    "--volume=/dev/bus/usb:/dev/bus/usb",
+    "--privileged"
+  ],
+  "containerEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}"
+  },
   "workspaceFolder": "/workspaces",
   "extensions": [
     "Dart-Code.flutter",
-    "Dart-Code.dart-code"
+    "Dart-Code.dart-code",
+    "ms-azuretools.vscode-docker",
   ],
   "postCreateCommand": "flutter doctor"
 }
