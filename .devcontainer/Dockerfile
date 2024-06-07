@@ -46,9 +46,9 @@ RUN mkdir -p sdk/cmdline-tools/latest
 RUN cp -r cmdline-tools/ sdk/
 ENV PATH="${PATH}:/workspaces/sdk/cmdline-tools/bin"
 
-RUN yes | sdkmanager --sdk_root=sdk "platforms;android-34" "cmdline-tools;latest" "platform-tools" "build-tools;34.0.0"
+RUN yes | sdkmanager --sdk_root=/usr/lib/android-sdk "platforms;android-34" "cmdline-tools;latest" "platform-tools" "build-tools;34.0.0"
 
-RUN flutter config --android-sdk sdk/
+RUN flutter config --android-sdk /usr/lib/android-sdk/
 RUN yes | flutter doctor --android-licenses
 
 RUN flutter channel
@@ -61,3 +61,14 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 RUN apt update && apt-get -y install google-chrome-stable
 
 RUN apt install sudo
+
+# Install ADB
+RUN apt install -y adb
+
+# Start ADB server
+RUN adb start-server
+
+# TODO Current post-build steps
+# launch android studio
+# specify sdk location as usr/lib/android-sdk
+# install
