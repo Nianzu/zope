@@ -21,6 +21,7 @@
     "Dart-Code.flutter",
     "Dart-Code.dart-code",
     "ms-azuretools.vscode-docker",
+    "mhutchie.git-graph",
   ],
   "postCreateCommand": "flutter doctor"
 }
