@@ -17,8 +17,8 @@ void main() async {
   //     email: "test1@gmail.com", password: "password");
   db = FirebaseFirestore.instance;
   // final costco = <String, dynamic>{
-  //   "name": "King Soopers",
-  //   "items": ["Bread", "Milk", "Cheese", "Cucumbers"],
+  //   "name": "costco",
+  //   "items": {"Bread": false, "Milk": true, "Cheese": false, "Cucumbers": true},
   // };
   // db.collection("stores").add(costco);
 
@@ -27,9 +27,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
-
-  final Stream<QuerySnapshot> _firestoreStream =
-      db.collection('stores').snapshots();
 
   // This widget is the root of your application.
   @override
@@ -71,7 +68,24 @@ class StoreItem {
   String name;
   List<ShoppingItem> list;
 
-  StoreItem(this.name, {this.list = const []});
+  StoreItem(this.name, this.list);
+}
+
+class StoreList {
+  List<StoreItem> list = [];
+
+  StoreList(var data) {
+    list = [];
+    for (var store in data) {
+      StoreItem store_item = StoreItem(store["name"], []);
+      for (var item in store["items"].keys) {
+        ShoppingItem shopping_item =
+            ShoppingItem(item, checked: store["items"][item]);
+        store_item.list.add(shopping_item);
+      }
+      list.add(store_item);
+    }
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -87,35 +101,35 @@ class _MyHomePageState extends State<MyHomePage> {
   final Stream<QuerySnapshot> _firestoreStream =
       FirebaseFirestore.instance.collection('stores').snapshots();
 
-  List<Widget> getStoreThings(Map<String, dynamic> store) {
+  List<Widget> getStoreThings(StoreItem store) {
     List<Widget> list = [];
-    print(store);
 
+    // list.add(Card(
     list.add(Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(store["name"]),
+        child: Text(store.name),
       ),
     ));
 
-    for (String item in store['items']) {
+    for (ShoppingItem item in store.list) {
       list.add(InkWell(
         onTap: () {
           setState(() {
-            // item.checked = !item.checked;
+            item.checked = !item.checked;
           });
         },
         child: Row(
           children: [
             Checkbox(
-              value: false,
+              value: item.checked,
               onChanged: (bool? value) {
                 setState(() {
-                  // item.checked = value!;
+                  item.checked = value!;
                 });
               },
             ),
-            Text(item)
+            Text(item.name)
           ],
         ),
       ));
@@ -157,17 +171,21 @@ class _MyHomePageState extends State<MyHomePage> {
           } else if (snapshot.connectionState == ConnectionState.waiting) {
             return Text("Loading");
           } else {
-            return ListView(
-                children: snapshot.data?.docs
-                        .map((DocumentSnapshot document) {
-                          Map<String, dynamic> data =
-                              document.data() as Map<String, dynamic>;
+            // Get the data from firestore
+            var data = snapshot.data!.docs
+                .map((DocumentSnapshot document) => document.data());
 
-                          getStoreThings(data);
-                        })
-                        .toList()
-                        .cast() ??
-                    [Text("Null")]);
+            // Load the data into our structure
+            print("Loaded data");
+            StoreList stores = StoreList(data);
+
+            // Generate the widgets
+            return ListView(
+              children: [for (var store in stores.list) getStoreThings(store)]
+                  .expand((x) => x)
+                  .toList(),
+              // https://stackoverflow.com/questions/21826342/how-do-i-combine-two-lists-in-dart
+            );
           }
         },
       ),
