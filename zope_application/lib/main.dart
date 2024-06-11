@@ -57,33 +57,40 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class ShoppingItem {
-  String name;
-  bool checked;
-
-  ShoppingItem(this.name, {this.checked = false});
-}
-
 class StoreItem {
-  String name;
-  List<ShoppingItem> list;
+  StoreItem({required this.name, required this.map, required this.id});
+  // StoreItem.fromMap(Map<String, Object?> inMap)
+  //     : this(
+  //         name: inMap['name']! as String,
+  //         map: inMap['items']! as Map<String, bool>,
+  //       );
+  // Map<String, Object?> toMap() {
+  //   return {
+  //     'name': name,
+  //     'items': map,
+  //   };
+  // }
 
-  StoreItem(this.name, this.list);
+  String name;
+  Map<String, dynamic> map;
+  String id;
+
+  void UpdateList() {
+    print("update list");
+    db.collection("stores").doc(id).update({"items": map});
+  }
 }
 
 class StoreList {
   List<StoreItem> list = [];
 
-  StoreList(var data) {
+  StoreList(List<DocumentSnapshot> documents) {
     list = [];
-    for (var store in data) {
-      StoreItem store_item = StoreItem(store["name"], []);
-      for (var item in store["items"].keys) {
-        ShoppingItem shopping_item =
-            ShoppingItem(item, checked: store["items"][item]);
-        store_item.list.add(shopping_item);
-      }
-      list.add(store_item);
+    for (DocumentSnapshot doc in documents) {
+      var data = (doc.data()! as Map);
+
+      // TODO error catching
+      list.add(StoreItem(name: data["name"], map: data["items"], id: doc.id));
     }
   }
 }
@@ -112,24 +119,26 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ));
 
-    for (ShoppingItem item in store.list) {
+    for (String key in store.map.keys) {
       list.add(InkWell(
         onTap: () {
           setState(() {
-            item.checked = !item.checked;
+            store.map[key] = !store.map[key]!;
+            store.UpdateList();
           });
         },
         child: Row(
           children: [
             Checkbox(
-              value: item.checked,
+              value: store.map[key],
               onChanged: (bool? value) {
                 setState(() {
-                  item.checked = value!;
+                  store.map[key] = value!;
+                  store.UpdateList();
                 });
               },
             ),
-            Text(item.name)
+            Text(key)
           ],
         ),
       ));
@@ -172,12 +181,13 @@ class _MyHomePageState extends State<MyHomePage> {
             return Text("Loading");
           } else {
             // Get the data from firestore
-            var data = snapshot.data!.docs
-                .map((DocumentSnapshot document) => document.data());
+            List<DocumentSnapshot> documents = snapshot.data!.docs
+                .map((DocumentSnapshot document) => document)
+                .toList();
 
             // Load the data into our structure
             print("Loaded data");
-            StoreList stores = StoreList(data);
+            StoreList stores = StoreList(documents);
 
             // Generate the widgets
             return ListView(
