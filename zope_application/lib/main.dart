@@ -6,6 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 var db;
 
+// TODO:
+// Color variable in database
+// Sort variables (date)
+// Deal with checked variables
+// Add new store
+// Delete things (items, stores)
+// Login
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -34,22 +42,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const MyHomePage(),
@@ -210,15 +204,91 @@ class _MyHomePageState extends State<MyHomePage> {
             StoreList stores = StoreList(documents);
 
             // Generate the widgets
-            return ListView(
-              children: [for (var store in stores.list) getStoreThings(store)]
-                  .expand((x) => x)
-                  .toList(),
-              // https://stackoverflow.com/questions/21826342/how-do-i-combine-two-lists-in-dart
-            );
+            return ListView(children: [
+              for (var store in stores.list) StoreThing(store: store)
+            ]
+                // https://stackoverflow.com/questions/21826342/how-do-i-combine-two-lists-in-dart
+                );
           }
         },
       ),
+    );
+  }
+}
+
+class StoreThing extends StatelessWidget {
+  StoreThing({super.key, required this.store});
+
+  final StoreItem store;
+
+  final _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: ThemeData(
+        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        useMaterial3: true,
+      ),
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          // Store title card
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Text(store.name),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.only(bottom: 8.0, left: 10.0, right: 8.0),
+              child: TextField(
+                controller: _controller,
+                onEditingComplete: () {
+                  FocusScope.of(context).unfocus();
+                },
+                onSubmitted: (value) {
+                  store.AddItem(value);
+                  _controller.clear();
+                },
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
+                },
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.add),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  hintText: "New item",
+                ),
+              ),
+            ),
+            for (String key in store.map.keys)
+              InkWell(
+                onTap: () {
+                  store.map[key] = !store.map[key]!;
+                  store.UpdateList();
+                },
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: store.map[key],
+                      onChanged: (bool? value) {
+                        store.map[key] = value!;
+                        store.UpdateList();
+                      },
+                    ),
+                    Text(key)
+                  ],
+                ),
+              )
+          ]),
     );
   }
 }
