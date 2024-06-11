@@ -79,6 +79,11 @@ class StoreItem {
     print("update list");
     db.collection("stores").doc(id).update({"items": map});
   }
+
+  void AddItem(String value) {
+    map[value] = false;
+    UpdateList();
+  }
 }
 
 class StoreList {
@@ -98,7 +103,7 @@ class StoreList {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
-  final String title = "Zope";
+  final String title = "Zɒpe";
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -111,11 +116,37 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> getStoreThings(StoreItem store) {
     List<Widget> list = [];
 
-    // list.add(Card(
+    // Store title card
     list.add(Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(store.name),
+      ),
+    ));
+
+    // Text entry for new item
+    var _controller = TextEditingController();
+    list.add(Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, left: 10.0, right: 8.0),
+      child: TextField(
+        controller: _controller,
+        onEditingComplete: () {
+          FocusScope.of(context).unfocus();
+        },
+        onSubmitted: (value) {
+          store.AddItem(value);
+          _controller.clear();
+        },
+        onTapOutside: (event) {
+          FocusScope.of(context).unfocus();
+        },
+        decoration: const InputDecoration(
+          prefixIcon: Icon(Icons.add),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          hintText: "New item",
+        ),
       ),
     ));
 
@@ -148,20 +179,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         actions: [
           IconButton(
