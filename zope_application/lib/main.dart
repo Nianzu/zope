@@ -8,7 +8,7 @@ var db;
 
 // TODO:
 // Color variable in database
-// Sort variables (date)
+// ✔ Sort variables (date)
 // Deal with checked variables
 // Add new store
 // Delete things (items, stores)
@@ -66,7 +66,7 @@ class StoreItem {
   // }
 
   String name;
-  Map<String, dynamic> map;
+  Map<String, Map<String, dynamic>> map;
   String id;
 
   void UpdateList() {
@@ -75,7 +75,10 @@ class StoreItem {
   }
 
   void AddItem(String value) {
-    map[value] = false;
+    map[value] = {
+      "value": false,
+      "timestamp": DateTime.now().millisecondsSinceEpoch
+    };
     UpdateList();
   }
 }
@@ -83,13 +86,22 @@ class StoreItem {
 class StoreList {
   List<StoreItem> list = [];
 
+  Map<String, Map<String, dynamic>> processItems(Map<String, dynamic> inMap) {
+    Map<String, Map<String, dynamic>> outMap = {};
+    for (String key in inMap.keys) {
+      outMap[key] = inMap[key];
+    }
+    return outMap;
+  }
+
   StoreList(List<DocumentSnapshot> documents) {
     list = [];
     for (DocumentSnapshot doc in documents) {
       var data = (doc.data()! as Map);
 
       // TODO error catching
-      list.add(StoreItem(name: data["name"], map: data["items"], id: doc.id));
+      list.add(StoreItem(
+          name: data["name"], map: processItems(data["items"]), id: doc.id));
     }
   }
 }
@@ -148,17 +160,17 @@ class _MyHomePageState extends State<MyHomePage> {
       list.add(InkWell(
         onTap: () {
           setState(() {
-            store.map[key] = !store.map[key]!;
+            store.map[key]!['value'] = !store.map[key]!['value'];
             store.UpdateList();
           });
         },
         child: Row(
           children: [
             Checkbox(
-              value: store.map[key],
+              value: store.map[key]!['value'],
               onChanged: (bool? value) {
                 setState(() {
-                  store.map[key] = value!;
+                  store.map[key]!['value'] = value!;
                   store.UpdateList();
                 });
               },
@@ -268,17 +280,25 @@ class StoreThing extends StatelessWidget {
               ),
             ),
           ),
-          for (String key in store.map.keys.toList()..sort())
+          for (String key in store.map.keys.toList()
+            ..sort((a, b) {
+              if ((store.map[b]!['value'] as bool) !=
+                  (store.map[a]!['value'] as bool)) {
+                return (store.map[b]!['value'] as bool) ? 1 : 0;
+              }
+              return (store.map[b]!['timestamp'] as int)
+                  .compareTo(store.map[a]!['timestamp'] as int);
+            }))
             InkWell(
               onTap: () {
-                store.map[key] = !store.map[key]!;
+                store.map[key]!['value'] = !store.map[key]!['value'];
                 store.UpdateList();
               },
               child: Row(
                 children: [
                   IgnorePointer(
                     child: Checkbox(
-                      value: store.map[key],
+                      value: store.map[key]!['value'],
                       onChanged: (_) {},
                     ),
                   ),
