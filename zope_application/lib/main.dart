@@ -301,7 +301,7 @@ class StoreThing extends StatelessWidget {
             ..sort((a, b) {
               if ((store.map[b]!['value'] as bool) !=
                   (store.map[a]!['value'] as bool)) {
-                return (store.map[b]!['value'] as bool) ? 1 : 0;
+                return (store.map[b]!['value'] as bool) ? -1 : 1;
               }
               return (store.map[b]!['timestamp'] as int)
                   .compareTo(store.map[a]!['timestamp'] as int);
