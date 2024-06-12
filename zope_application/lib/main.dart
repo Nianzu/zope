@@ -12,7 +12,7 @@ var db;
 // Update store color
 // ✔ Sort variables (date)
 // Deal with checked variables (cleanup)
-// Add new store
+// ✔ Add new store
 // Delete things (items, stores)
 // Login
 
@@ -79,7 +79,7 @@ class StoreItem {
 
   void UpdateColor() {
     print("update color");
-    db.collection("stores").doc(id).update({"color": storeColor.toString()});
+    db.collection("stores").doc(id).update({"color": storeColor.value});
   }
 }
 
@@ -106,12 +106,19 @@ class StoreList {
           id: doc.id,
           storeColor: (data["color"] == null)
               ? Color.fromARGB(255, 255, 0, 255)
-              : Color(int.parse(data["color"].toString().substring(8, 16),
-                  radix: 16))));
+              : Color(int.parse(data["color"].toString()))));
     }
   }
 
-  void addStore() {}
+  void addStore(String name, Color color) {
+    Map<String, dynamic> newStore = {
+      "name": name,
+      "items": {},
+      "color": color.value,
+    };
+    print(newStore);
+    db.collection("stores").add(newStore);
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -131,11 +138,14 @@ class _MyHomePageState extends State<MyHomePage> {
   // https://stackoverflow.com/questions/51962272/how-to-refresh-an-alertdialog-in-flutter
   TextEditingController _nameFieldController = TextEditingController();
   TextEditingController _colorFieldController = TextEditingController();
+  late StoreList _stores;
+
   Future<void> _displayTextInputDialog(BuildContext context) async {
     return showDialog(
       context: context,
       builder: (context) {
         String colorText = "";
+        Color color = Colors.amber;
         return StatefulBuilder(builder: (context, setState) {
           return AlertDialog(
             title: const Text('Add a new store'),
@@ -143,6 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
+                  autofocus: true,
                   controller: _nameFieldController,
                   decoration: InputDecoration(
                     hintText: "Store name",
@@ -161,6 +172,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   onChanged: (x) {
                     setState(() {
                       colorText = x;
+                      color = colorText != ""
+                          ? Color(int.parse(
+                              "ff${colorText.padRight(7, '0').substring(1, 7)}",
+                              radix: 16))
+                          : Colors.amber;
                     });
                   },
                   style: TextStyle(fontFamily: "monospace"),
@@ -172,11 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Icons.circle,
                         shadows: [Shadow(blurRadius: 10, color: Colors.grey)],
                       ),
-                      prefixIconColor: colorText != ""
-                          ? Color(int.parse(
-                              "ff${colorText.padRight(7, '0').substring(1, 7)}",
-                              radix: 16))
-                          : Colors.amber),
+                      prefixIconColor: color),
                 ),
               ],
             ),
@@ -189,10 +201,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.pop(context);
                 },
               ),
-              TextButton(
+              FilledButton(
                 child: Text('Add'),
                 onPressed: () {
-                  print(_nameFieldController.text);
+                  _stores.addStore(_nameFieldController.text, color);
                   _nameFieldController.clear();
                   _colorFieldController.clear();
                   Navigator.pop(context);
@@ -245,11 +257,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
             // Load the data into our structure
             print("Loaded data");
-            StoreList stores = StoreList(documents);
+            _stores = StoreList(documents);
 
             // Generate the widgets
             return ListView(children: [
-              for (var store in stores.list) StoreThing(store: store),
+              for (var store in _stores.list) StoreThing(store: store),
               Padding(
                 padding:
                     const EdgeInsets.only(left: 50.0, right: 50.0, top: 50.0),
