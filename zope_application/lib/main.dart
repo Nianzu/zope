@@ -232,63 +232,62 @@ class StoreThing extends StatelessWidget {
         useMaterial3: true,
       ),
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          // Store title card
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Text(store.name),
-                  ],
-                ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        // Store title card
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Text(store.name),
+                ],
               ),
             ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(bottom: 8.0, left: 10.0, right: 8.0),
-              child: TextField(
-                controller: _controller,
-                onEditingComplete: () {
-                  FocusScope.of(context).unfocus();
-                },
-                onSubmitted: (value) {
-                  store.AddItem(value);
-                  _controller.clear();
-                },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.add),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                  ),
-                  hintText: "New item",
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0, left: 10.0, right: 8.0),
+            child: TextField(
+              controller: _controller,
+              onEditingComplete: () {
+                FocusScope.of(context).unfocus();
+              },
+              onSubmitted: (value) {
+                store.AddItem(value);
+                _controller.clear();
+              },
+              onTapOutside: (event) {
+                FocusScope.of(context).unfocus();
+              },
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.add),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
                 ),
+                hintText: "New item",
               ),
             ),
-            for (String key in store.map.keys)
-              InkWell(
-                onTap: () {
-                  store.map[key] = !store.map[key]!;
-                  store.UpdateList();
-                },
-                child: Row(
-                  children: [
-                    Checkbox(
+          ),
+          for (String key in store.map.keys.toList()..sort())
+            InkWell(
+              onTap: () {
+                store.map[key] = !store.map[key]!;
+                store.UpdateList();
+              },
+              child: Row(
+                children: [
+                  IgnorePointer(
+                    child: Checkbox(
                       value: store.map[key],
-                      onChanged: (bool? value) {
-                        store.map[key] = value!;
-                        store.UpdateList();
-                      },
+                      onChanged: (_) {},
                     ),
-                    Text(key)
-                  ],
-                ),
-              )
-          ]),
+                  ),
+                  Text(key)
+                ],
+              ),
+            )
+        ],
+      ),
     );
   }
 }
