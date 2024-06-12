@@ -41,7 +41,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
       theme: ThemeData(
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
@@ -58,17 +57,6 @@ class StoreItem {
       required this.map,
       required this.id,
       required this.storeColor});
-  // StoreItem.fromMap(Map<String, Object?> inMap)
-  //     : this(
-  //         name: inMap['name']! as String,
-  //         map: inMap['items']! as Map<String, bool>,
-  //       );
-  // Map<String, Object?> toMap() {
-  //   return {
-  //     'name': name,
-  //     'items': map,
-  //   };
-  // }
 
   String name;
   Map<String, Map<String, dynamic>> map;
@@ -121,6 +109,8 @@ class StoreList {
                   radix: 16))));
     }
   }
+
+  void addStore() {}
 }
 
 class MyHomePage extends StatefulWidget {
@@ -136,83 +126,61 @@ class _MyHomePageState extends State<MyHomePage> {
   final Stream<QuerySnapshot> _firestoreStream =
       FirebaseFirestore.instance.collection('stores').snapshots();
 
-  List<Widget> getStoreThings(StoreItem store) {
-    List<Widget> list = [];
-
-    // Store title card
-    list.add(Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(store.name),
-      ),
-    ));
-
-    // Text entry for new item
-    var _controller = TextEditingController();
-    list.add(Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, left: 10.0, right: 8.0),
-      child: TextField(
-        controller: _controller,
-        onEditingComplete: () {
-          FocusScope.of(context).unfocus();
-        },
-        onSubmitted: (value) {
-          store.AddItem(value);
-          _controller.clear();
-        },
-        onTapOutside: (event) {
-          FocusScope.of(context).unfocus();
-        },
-        decoration: const InputDecoration(
-          prefixIcon: Icon(Icons.add),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
+  // https://stackoverflow.com/questions/49778217/how-to-create-a-dialog-that-is-able-to-accept-text-input-and-show-result-in-flut
+  TextEditingController _textFieldController = TextEditingController();
+  Future<void> _displayTextInputDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('TextField in Dialog'),
+          content: TextField(
+            controller: _textFieldController,
+            decoration: InputDecoration(hintText: "Text Field in Dialog"),
           ),
-          hintText: "New item",
-        ),
-      ),
-    ));
-
-    for (String key in store.map.keys) {
-      list.add(InkWell(
-        onTap: () {
-          setState(() {
-            store.map[key]!['value'] = !store.map[key]!['value'];
-            store.UpdateList();
-          });
-        },
-        child: Row(
-          children: [
-            Checkbox(
-              value: store.map[key]!['value'],
-              onChanged: (bool? value) {
-                setState(() {
-                  store.map[key]!['value'] = value!;
-                  store.UpdateList();
-                });
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context);
               },
             ),
-            Text(key)
+            TextButton(
+              child: Text('Add'),
+              onPressed: () {
+                print(_textFieldController.text);
+                Navigator.pop(context);
+              },
+            ),
           ],
-        ),
-      ));
-    }
-    return list;
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        title: Text(
+          widget.title,
+          style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimary),
+        ),
         actions: [
           IconButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('This is a snackbar')));
-              },
-              icon: const Icon(Icons.person_rounded))
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('This is a snackbar')));
+            },
+            icon: Icon(
+              Icons.person_rounded,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+          )
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -234,7 +202,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
             // Generate the widgets
             return ListView(children: [
-              for (var store in stores.list) StoreThing(store: store)
+              for (var store in stores.list) StoreThing(store: store),
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 50.0, right: 50.0, top: 50.0),
+                child: FilledButton(
+                    onPressed: () {
+                      _displayTextInputDialog(context);
+                    },
+                    child: Text("Add Store")),
+              )
             ]
                 // https://stackoverflow.com/questions/21826342/how-do-i-combine-two-lists-in-dart
                 );
