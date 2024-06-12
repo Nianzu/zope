@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -127,33 +128,79 @@ class _MyHomePageState extends State<MyHomePage> {
       FirebaseFirestore.instance.collection('stores').snapshots();
 
   // https://stackoverflow.com/questions/49778217/how-to-create-a-dialog-that-is-able-to-accept-text-input-and-show-result-in-flut
-  TextEditingController _textFieldController = TextEditingController();
+  // https://stackoverflow.com/questions/51962272/how-to-refresh-an-alertdialog-in-flutter
+  TextEditingController _nameFieldController = TextEditingController();
+  TextEditingController _colorFieldController = TextEditingController();
   Future<void> _displayTextInputDialog(BuildContext context) async {
     return showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('TextField in Dialog'),
-          content: TextField(
-            controller: _textFieldController,
-            decoration: InputDecoration(hintText: "Text Field in Dialog"),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+        String colorText = "";
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Add a new store'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _nameFieldController,
+                  decoration: InputDecoration(
+                    hintText: "Store name",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                TextField(
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'[0-9]|[a-f]|[F-F]')),
+                    LengthLimitingTextInputFormatter(6),
+                  ],
+                  onChanged: (x) {
+                    setState(() {
+                      colorText = x;
+                    });
+                  },
+                  style: TextStyle(fontFamily: "monospace"),
+                  controller: _colorFieldController,
+                  decoration: InputDecoration(
+                      hintText: "HEX Color",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(
+                        Icons.circle,
+                        shadows: [Shadow(blurRadius: 10, color: Colors.grey)],
+                      ),
+                      prefixIconColor: colorText != ""
+                          ? Color(int.parse(
+                              "ff${colorText.padRight(7, '0').substring(1, 7)}",
+                              radix: 16))
+                          : Colors.amber),
+                ),
+              ],
             ),
-            TextButton(
-              child: Text('Add'),
-              onPressed: () {
-                print(_textFieldController.text);
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
+            actions: <Widget>[
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  _nameFieldController.clear();
+                  _colorFieldController.clear();
+                  Navigator.pop(context);
+                },
+              ),
+              TextButton(
+                child: Text('Add'),
+                onPressed: () {
+                  print(_nameFieldController.text);
+                  _nameFieldController.clear();
+                  _colorFieldController.clear();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
       },
     );
   }
