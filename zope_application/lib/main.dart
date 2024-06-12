@@ -290,75 +290,121 @@ class StoreThing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = ColorScheme.fromSeed(seedColor: store.storeColor);
     return Theme(
-      data: ThemeData(
-        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
-        colorScheme: ColorScheme.fromSeed(seedColor: store.storeColor),
-        useMaterial3: true,
+      data: Theme.of(context).copyWith(
+        colorScheme: colorScheme,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        // Store title card
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Text(store.name),
-                ],
-              ),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, left: 10.0, right: 8.0),
-            child: TextField(
-              controller: _controller,
-              onEditingComplete: () {
-                FocusScope.of(context).unfocus();
-              },
-              onSubmitted: (value) {
-                store.AddItem(value);
-                _controller.clear();
-              },
-              onTapOutside: (event) {
-                FocusScope.of(context).unfocus();
-              },
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.add),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                ),
-                hintText: "New item",
-              ),
-            ),
-          ),
-          for (String key in store.map.keys.toList()
-            ..sort((a, b) {
-              if ((store.map[b]!['value'] as bool) !=
-                  (store.map[a]!['value'] as bool)) {
-                return (store.map[b]!['value'] as bool) ? -1 : 1;
-              }
-              return (store.map[b]!['timestamp'] as int)
-                  .compareTo(store.map[a]!['timestamp'] as int);
-            }))
-            InkWell(
-              onTap: () {
-                store.map[key]!['value'] = !store.map[key]!['value'];
-                store.UpdateList();
-              },
-              child: Row(
+            padding: const EdgeInsets.all(5.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: colorScheme.primaryContainer),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // Store title card
                 children: [
-                  IgnorePointer(
-                    child: Checkbox(
-                      value: store.map[key]!['value'],
-                      onChanged: (_) {},
+                  Card(
+                    // surfaceTintColor: store.storeColor,
+                    // color: colorScheme.primary,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          gradient: LinearGradient(
+                            colors: [
+                              // colorScheme.primary,
+                              colorScheme.primary,
+                              colorScheme.primary,
+                              // store.storeColor,
+                              // colorScheme.primary,
+                            ],
+                            // begin: Alignment.topLeft,
+                            // end: Alignment.bottomRight,
+                          )),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              store.name,
+                              style: TextStyle(
+                                  color: colorScheme.onPrimary,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  Text(key)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        bottom: 8.0, left: 10.0, right: 8.0),
+                    child: TextField(
+                      controller: _controller,
+                      onEditingComplete: () {
+                        FocusScope.of(context).unfocus();
+                      },
+                      onSubmitted: (value) {
+                        store.AddItem(value);
+                        _controller.clear();
+                      },
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      decoration: InputDecoration(
+                        fillColor: colorScheme.secondaryContainer,
+                        filled: true,
+                        prefixIcon: Icon(Icons.add),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                        ),
+                        hintText: "New item",
+                      ),
+                    ),
+                  ),
+                  for (String key in store.map.keys.toList()
+                    ..sort((a, b) {
+                      // if ((store.map[b]!['value'] as bool) !=
+                      //     (store.map[a]!['value'] as bool)) {
+                      //   return (store.map[b]!['value'] as bool) ? -1 : 1;
+                      // }
+                      return (store.map[b]!['timestamp'] as int)
+                          .compareTo(store.map[a]!['timestamp'] as int);
+                    }))
+                    InkWell(
+                      onTap: () {
+                        store.map[key]!['value'] = !store.map[key]!['value'];
+                        store.UpdateList();
+                      },
+                      child: Row(
+                        children: [
+                          IgnorePointer(
+                            child: Checkbox(
+                              value: store.map[key]!['value'],
+                              onChanged: (_) {},
+                            ),
+                          ),
+                          Text(
+                            key,
+                            style: TextStyle(
+                              color: colorScheme.onPrimaryContainer,
+                              fontSize: 16,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
                 ],
               ),
-            )
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
         ],
       ),
     );
