@@ -7,9 +7,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 var db;
 
 // TODO:
-// Color variable in database
+// ✔ Color variable in database
+// Update store color
 // ✔ Sort variables (date)
-// Deal with checked variables
+// Deal with checked variables (cleanup)
 // Add new store
 // Delete things (items, stores)
 // Login
@@ -52,7 +53,11 @@ class MyApp extends StatelessWidget {
 }
 
 class StoreItem {
-  StoreItem({required this.name, required this.map, required this.id});
+  StoreItem(
+      {required this.name,
+      required this.map,
+      required this.id,
+      required this.storeColor});
   // StoreItem.fromMap(Map<String, Object?> inMap)
   //     : this(
   //         name: inMap['name']! as String,
@@ -68,6 +73,7 @@ class StoreItem {
   String name;
   Map<String, Map<String, dynamic>> map;
   String id;
+  Color storeColor;
 
   void UpdateList() {
     print("update list");
@@ -80,6 +86,11 @@ class StoreItem {
       "timestamp": DateTime.now().millisecondsSinceEpoch
     };
     UpdateList();
+  }
+
+  void UpdateColor() {
+    print("update color");
+    db.collection("stores").doc(id).update({"color": storeColor.toString()});
   }
 }
 
@@ -101,7 +112,13 @@ class StoreList {
 
       // TODO error catching
       list.add(StoreItem(
-          name: data["name"], map: processItems(data["items"]), id: doc.id));
+          name: data["name"],
+          map: processItems(data["items"]),
+          id: doc.id,
+          storeColor: (data["color"] == null)
+              ? Color.fromARGB(255, 255, 0, 255)
+              : Color(int.parse(data["color"].toString().substring(8, 16),
+                  radix: 16))));
     }
   }
 }
@@ -240,7 +257,7 @@ class StoreThing extends StatelessWidget {
     return Theme(
       data: ThemeData(
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        colorScheme: ColorScheme.fromSeed(seedColor: store.storeColor),
         useMaterial3: true,
       ),
       child: Column(
