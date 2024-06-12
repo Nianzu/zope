@@ -6,10 +6,9 @@
 
 2. run flutterfire configure
 ```
+curl -sL https://firebase.tools | bash
 firebase login
 dart pub global activate flutterfire_cli
-flutterfire configure
-flutterfire configure
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 flutterfire configure
 ```
