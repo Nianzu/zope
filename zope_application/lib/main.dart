@@ -23,8 +23,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: "test1@gmail.com", password: "password");
+  // await FirebaseAuth.instance.signInWithEmailAndPassword(
+  //     email: "test1@gmail.com", password: "password");
   // await FirebaseAuth.instance.createUserWithEmailAndPassword(
   //     email: "test1@gmail.com", password: "password");
   db = FirebaseFirestore.instance;
@@ -132,6 +132,17 @@ class StoreList {
   }
 }
 
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -179,13 +190,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     FilteringTextInputFormatter.allow(
                         RegExp(r'[0-9]|[a-f]|[F-F]')),
                     LengthLimitingTextInputFormatter(6),
+                    UpperCaseTextFormatter(),
                   ],
                   onChanged: (x) {
                     setState(() {
                       colorText = x;
                       color = colorText != ""
-                          ? Color(int.parse(
-                              "ff${colorText.padRight(7, '0').substring(0, 6)}",
+                          ? Color(int.parse("ff${colorText.padRight(6, '0')}",
                               radix: 16))
                           : Colors.amber;
                     });
@@ -312,12 +323,12 @@ class _StoreThingState extends State<StoreThing> {
       context: context,
       builder: (context) {
         _nameFieldController.text = widget.store.name;
-        _colorFieldController.text =
-            widget.store.storeColor.value.toRadixString(16).substring(1, 7);
+        _colorFieldController.text = widget.store.storeColor.value
+            .toRadixString(16)
+            .substring(2, 8)
+            .toUpperCase();
         String colorText = _colorFieldController.text;
-        Color color = Color(int.parse(
-            "ff${colorText.padRight(7, '0').substring(1, 7)}",
-            radix: 16));
+        Color color = Color(int.parse("ff${colorText}", radix: 16));
         return StatefulBuilder(builder: (context, setState) {
           return AlertDialog(
             title: const Text('Edit Store'),
@@ -340,13 +351,13 @@ class _StoreThingState extends State<StoreThing> {
                     FilteringTextInputFormatter.allow(
                         RegExp(r'[0-9]|[a-f]|[F-F]')),
                     LengthLimitingTextInputFormatter(6),
+                    UpperCaseTextFormatter(),
                   ],
                   onChanged: (x) {
                     setState(() {
                       colorText = x;
                       color = colorText != ""
-                          ? Color(int.parse(
-                              "ff${colorText.padRight(7, '0').substring(1, 7)}",
+                          ? Color(int.parse("ff${colorText.padRight(6, '0')}",
                               radix: 16))
                           : Colors.amber;
                     });
