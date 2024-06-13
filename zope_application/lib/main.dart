@@ -9,11 +9,12 @@ var db;
 
 // TODO:
 // ✔ Color variable in database
-// Update store color
+// ✔ Update store color
 // ✔ Sort variables (date)
 // Deal with checked variables (cleanup)
 // ✔ Add new store
-// Delete things (items, stores)
+// ✔ Delete stores
+// Delete items
 // Login
 // Use geo data to sort stores
 
@@ -78,9 +79,18 @@ class StoreItem {
     UpdateList();
   }
 
-  void UpdateColor() {
+  void UpdateColor(Color newColor) {
     print("update color");
-    db.collection("stores").doc(id).update({"color": storeColor.value});
+    db.collection("stores").doc(id).update({"color": newColor.value});
+  }
+
+  void UpdateName(String newName) {
+    print("update name");
+    db.collection("stores").doc(id).update({"name": newName});
+  }
+
+  void delete() async {
+    await db.collection("stores").doc(id).delete();
   }
 }
 
@@ -141,7 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController _colorFieldController = TextEditingController();
   late StoreList _stores;
 
-  Future<void> _displayTextInputDialog(BuildContext context) async {
+  Future<void> _addStoreDialog(BuildContext context) async {
     return showDialog(
       context: context,
       builder: (context) {
@@ -175,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       colorText = x;
                       color = colorText != ""
                           ? Color(int.parse(
-                              "ff${colorText.padRight(7, '0').substring(1, 7)}",
+                              "ff${colorText.padRight(7, '0').substring(0, 6)}",
                               radix: 16))
                           : Colors.amber;
                     });
@@ -264,11 +274,11 @@ class _MyHomePageState extends State<MyHomePage> {
             return ListView(children: [
               for (var store in _stores.list) StoreThing(store: store),
               Padding(
-                padding:
-                    const EdgeInsets.only(left: 50.0, right: 50.0, top: 50.0),
+                padding: const EdgeInsets.only(
+                    left: 50.0, right: 50.0, top: 50.0, bottom: 50),
                 child: FilledButton(
                     onPressed: () {
-                      _displayTextInputDialog(context);
+                      _addStoreDialog(context);
                     },
                     child: Text("Add Store")),
               )
@@ -289,6 +299,100 @@ class StoreThing extends StatelessWidget {
 
   final _controller = TextEditingController();
 
+  TextEditingController _nameFieldController = TextEditingController();
+  TextEditingController _colorFieldController = TextEditingController();
+
+  Future<void> _editStoreDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        _nameFieldController.text = store.name;
+        _colorFieldController.text =
+            store.storeColor.value.toRadixString(16).substring(1, 7);
+        String colorText = _colorFieldController.text;
+        Color color = Color(int.parse(
+            "ff${colorText.padRight(7, '0').substring(1, 7)}",
+            radix: 16));
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Edit Store'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  autofocus: true,
+                  controller: _nameFieldController,
+                  decoration: InputDecoration(
+                    hintText: "Store name",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                TextField(
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'[0-9]|[a-f]|[F-F]')),
+                    LengthLimitingTextInputFormatter(6),
+                  ],
+                  onChanged: (x) {
+                    setState(() {
+                      colorText = x;
+                      color = colorText != ""
+                          ? Color(int.parse(
+                              "ff${colorText.padRight(7, '0').substring(1, 7)}",
+                              radix: 16))
+                          : Colors.amber;
+                    });
+                  },
+                  style: TextStyle(fontFamily: "monospace"),
+                  controller: _colorFieldController,
+                  decoration: InputDecoration(
+                      hintText: "HEX Color",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(
+                        Icons.circle,
+                        shadows: [Shadow(blurRadius: 10, color: Colors.grey)],
+                      ),
+                      prefixIconColor: color),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: Text('Delete'),
+                style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Please hold "Delete" to confirm')));
+                },
+                onLongPress: () {
+                  store.delete();
+                  _nameFieldController.clear();
+                  _colorFieldController.clear();
+                  Navigator.pop(context);
+                },
+              ),
+              FilledButton(
+                child: Text('Save'),
+                onPressed: () {
+                  // store.addStore(_nameFieldController.text, color);
+                  store.UpdateColor(color);
+                  store.UpdateName(_nameFieldController.text);
+                  _nameFieldController.clear();
+                  _colorFieldController.clear();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ColorScheme colorScheme = ColorScheme.fromSeed(seedColor: store.storeColor);
@@ -308,35 +412,59 @@ class StoreThing extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 // Store title card
                 children: [
-                  Card(
-                    // surfaceTintColor: store.storeColor,
-                    // color: colorScheme.primary,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          gradient: LinearGradient(
-                            colors: [
-                              // colorScheme.primary,
-                              colorScheme.primary,
-                              colorScheme.primary,
-                              // store.storeColor,
-                              // colorScheme.primary,
+                  GestureDetector(
+                    onLongPress: () {
+                      _editStoreDialog(context);
+                    },
+                    child: Card(
+                      // color: colorScheme.primary,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            gradient: LinearGradient(
+                              colors: [
+                                // colorScheme.primary,
+                                colorScheme.primary,
+                                colorScheme.primary,
+                                // store.storeColor,
+                                // colorScheme.primary,
+                              ],
+                              // begin: Alignment.topLeft,
+                              // end: Alignment.bottomRight,
+                            )),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Text(
+                                store.name,
+                                style: TextStyle(
+                                    color: colorScheme.onPrimary,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              // Spacer(),
+                              // Text(
+                              //   store.map.keys
+                              //       .toList()
+                              //       .where((x) {
+                              //         return !store.map[x]!['value'];
+                              //       })
+                              //       .length
+                              //       .toString(),
+                              //   style: TextStyle(
+                              //       color: colorScheme.onPrimary,
+                              //       fontSize: 18,
+                              //       fontWeight: FontWeight.normal),
+                              // ),
+                              // SizedBox(
+                              //   width: 8,
+                              // )
                             ],
-                            // begin: Alignment.topLeft,
-                            // end: Alignment.bottomRight,
-                          )),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Text(
-                              store.name,
-                              style: TextStyle(
-                                  color: colorScheme.onPrimary,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
