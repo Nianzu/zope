@@ -292,11 +292,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class StoreThing extends StatelessWidget {
-  StoreThing({super.key, required this.store});
+class StoreThing extends StatefulWidget {
+  const StoreThing({super.key, required this.store});
 
   final StoreItem store;
 
+  @override
+  State<StoreThing> createState() => _StoreThingState();
+}
+
+class _StoreThingState extends State<StoreThing> {
   final _controller = TextEditingController();
 
   TextEditingController _nameFieldController = TextEditingController();
@@ -306,9 +311,9 @@ class StoreThing extends StatelessWidget {
     return showDialog(
       context: context,
       builder: (context) {
-        _nameFieldController.text = store.name;
+        _nameFieldController.text = widget.store.name;
         _colorFieldController.text =
-            store.storeColor.value.toRadixString(16).substring(1, 7);
+            widget.store.storeColor.value.toRadixString(16).substring(1, 7);
         String colorText = _colorFieldController.text;
         Color color = Color(int.parse(
             "ff${colorText.padRight(7, '0').substring(1, 7)}",
@@ -369,7 +374,7 @@ class StoreThing extends StatelessWidget {
                       content: Text('Please hold "Delete" to confirm')));
                 },
                 onLongPress: () {
-                  store.delete();
+                  widget.store.delete();
                   _nameFieldController.clear();
                   _colorFieldController.clear();
                   Navigator.pop(context);
@@ -379,8 +384,8 @@ class StoreThing extends StatelessWidget {
                 child: Text('Save'),
                 onPressed: () {
                   // store.addStore(_nameFieldController.text, color);
-                  store.UpdateColor(color);
-                  store.UpdateName(_nameFieldController.text);
+                  widget.store.UpdateColor(color);
+                  widget.store.UpdateName(_nameFieldController.text);
                   _nameFieldController.clear();
                   _colorFieldController.clear();
                   Navigator.pop(context);
@@ -395,7 +400,8 @@ class StoreThing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ColorScheme colorScheme = ColorScheme.fromSeed(seedColor: store.storeColor);
+    ColorScheme colorScheme =
+        ColorScheme.fromSeed(seedColor: widget.store.storeColor);
     FocusNode myFocusNode = FocusNode();
     return Theme(
       data: Theme.of(context).copyWith(
@@ -441,7 +447,7 @@ class StoreThing extends StatelessWidget {
                                 width: 8,
                               ),
                               Text(
-                                store.name,
+                                widget.store.name,
                                 style: TextStyle(
                                     color: colorScheme.onPrimary,
                                     fontSize: 18,
@@ -480,7 +486,7 @@ class StoreThing extends StatelessWidget {
                         FocusScope.of(context).unfocus();
                       },
                       onSubmitted: (value) {
-                        store.AddItem(value);
+                        widget.store.AddItem(value);
                         _controller.clear();
                         myFocusNode.requestFocus();
                       },
@@ -498,32 +504,33 @@ class StoreThing extends StatelessWidget {
                       ),
                     ),
                   ),
-                  for (String key in store.map.keys.toList()
+                  for (String key in widget.store.map.keys.toList()
                     ..sort((a, b) {
                       // if ((store.map[b]!['value'] as bool) !=
                       //     (store.map[a]!['value'] as bool)) {
                       //   return (store.map[b]!['value'] as bool) ? -1 : 1;
                       // }
-                      return (store.map[b]!['timestamp'] as int)
-                          .compareTo(store.map[a]!['timestamp'] as int);
+                      return (widget.store.map[b]!['timestamp'] as int)
+                          .compareTo(widget.store.map[a]!['timestamp'] as int);
                     }))
                     InkWell(
                       onTap: () {
-                        store.map[key]!['value'] = !store.map[key]!['value'];
-                        store.UpdateList();
+                        widget.store.map[key]!['value'] =
+                            !widget.store.map[key]!['value'];
+                        widget.store.UpdateList();
                       },
                       child: Row(
                         children: [
                           IgnorePointer(
                             child: Checkbox(
-                              value: store.map[key]!['value'],
+                              value: widget.store.map[key]!['value'],
                               onChanged: (_) {},
                             ),
                           ),
                           Text(
                             key,
                             style: TextStyle(
-                                color: store.map[key]!['value']
+                                color: widget.store.map[key]!['value']
                                     ? Color.fromARGB(
                                         // colorScheme.onPrimaryContainer.alpha,
                                         100,
@@ -532,7 +539,7 @@ class StoreThing extends StatelessWidget {
                                         colorScheme.onPrimaryContainer.blue)
                                     : colorScheme.onPrimaryContainer,
                                 fontSize: 18,
-                                decoration: store.map[key]!['value']
+                                decoration: widget.store.map[key]!['value']
                                     ? TextDecoration.lineThrough
                                     : TextDecoration.none),
                           )
