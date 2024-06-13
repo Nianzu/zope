@@ -396,6 +396,7 @@ class StoreThing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ColorScheme colorScheme = ColorScheme.fromSeed(seedColor: store.storeColor);
+    FocusNode myFocusNode = FocusNode();
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: colorScheme,
@@ -473,6 +474,7 @@ class StoreThing extends StatelessWidget {
                     padding: const EdgeInsets.only(
                         bottom: 8.0, left: 10.0, right: 8.0),
                     child: TextField(
+                      focusNode: myFocusNode,
                       controller: _controller,
                       onEditingComplete: () {
                         FocusScope.of(context).unfocus();
@@ -480,6 +482,7 @@ class StoreThing extends StatelessWidget {
                       onSubmitted: (value) {
                         store.AddItem(value);
                         _controller.clear();
+                        myFocusNode.requestFocus();
                       },
                       onTapOutside: (event) {
                         FocusScope.of(context).unfocus();
