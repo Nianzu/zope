@@ -252,14 +252,14 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Theme.of(context).colorScheme.onPrimary),
         ),
         actions: [
-          IconButton(
+          IconButton.filledTonal(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('This is a snackbar')));
             },
             icon: Icon(
               Icons.person_rounded,
-              color: Theme.of(context).colorScheme.onPrimary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           )
         ],
