@@ -15,6 +15,7 @@ var db;
 // ✔ Add new store
 // Delete things (items, stores)
 // Login
+// Use geo data to sort stores
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -391,9 +392,18 @@ class StoreThing extends StatelessWidget {
                           Text(
                             key,
                             style: TextStyle(
-                              color: colorScheme.onPrimaryContainer,
-                              fontSize: 16,
-                            ),
+                                color: store.map[key]!['value']
+                                    ? Color.fromARGB(
+                                        // colorScheme.onPrimaryContainer.alpha,
+                                        100,
+                                        colorScheme.onPrimaryContainer.red,
+                                        colorScheme.onPrimaryContainer.green,
+                                        colorScheme.onPrimaryContainer.blue)
+                                    : colorScheme.onPrimaryContainer,
+                                fontSize: 18,
+                                decoration: store.map[key]!['value']
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none),
                           )
                         ],
                       ),
