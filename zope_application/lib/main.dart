@@ -107,6 +107,17 @@ class StoreItem {
   void delete() async {
     await db.collection("stores").doc(id).delete();
   }
+
+  void clearChecked() async {
+    for (var key in map.keys) {
+      if (map[key]!["value"] as bool) {
+        db
+            .collection("stores")
+            .doc(id)
+            .update({"items.${key}": FieldValue.delete()});
+      }
+    }
+  }
 }
 
 class StoreList {
@@ -144,6 +155,12 @@ class StoreList {
     };
     print(newStore);
     db.collection("stores").add(newStore);
+  }
+
+  void clearChecked() {
+    for (StoreItem store in list) {
+      store.clearChecked();
+    }
   }
 }
 
@@ -258,6 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text(
           widget.title,
@@ -299,11 +317,31 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: const EdgeInsets.only(
                     left: 50.0, right: 50.0, top: 50.0, bottom: 50),
-                child: FilledButton(
-                    onPressed: () {
-                      _addStoreDialog(context);
-                    },
-                    child: const Text("Add Store")),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FilledButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Please hold "Clear Checked" to confirm')));
+                        },
+                        onLongPress: () {
+                          _stores.clearChecked();
+                        },
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        child: const Text("Clear Checked")),
+                    Spacer(),
+                    FilledButton(
+                        onPressed: () {
+                          _addStoreDialog(context);
+                        },
+                        child: const Text("Add Store")),
+                  ],
+                ),
               )
             ]
                 // https://stackoverflow.com/questions/21826342/how-do-i-combine-two-lists-in-dart
