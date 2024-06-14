@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +19,7 @@ var db;
 // Delete items
 // Login
 // Use geo data to sort stores
-
+bool logged_in = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -33,12 +35,19 @@ void main() async {
   //   "items": {"Bread": false, "Milk": true, "Cheese": false, "Cucumbers": true},
   // };
   // db.collection("stores").add(costco);
+  FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    if (user != null) {
+      logged_in = true;
+    } else {
+      logged_in = false;
+    }
+  });
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -49,7 +58,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MyHomePage(),
+      // home: const MyHomePage(),
+      routes: <String, WidgetBuilder>{
+        '/': (_) => const Login(), // Login Page
+        '/home': (_) => const MyHomePage(),
+        '/user': (_) => const UserInfo(),
+      },
+      initialRoute: logged_in ? '/home' : '/',
     );
   }
 }
@@ -116,7 +131,7 @@ class StoreList {
           map: processItems(data["items"]),
           id: doc.id,
           storeColor: (data["color"] == null)
-              ? Color.fromARGB(255, 255, 0, 255)
+              ? const Color.fromARGB(255, 255, 0, 255)
               : Color(int.parse(data["color"].toString()))));
     }
   }
@@ -158,8 +173,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // https://stackoverflow.com/questions/49778217/how-to-create-a-dialog-that-is-able-to-accept-text-input-and-show-result-in-flut
   // https://stackoverflow.com/questions/51962272/how-to-refresh-an-alertdialog-in-flutter
-  TextEditingController _nameFieldController = TextEditingController();
-  TextEditingController _colorFieldController = TextEditingController();
+  final TextEditingController _nameFieldController = TextEditingController();
+  final TextEditingController _colorFieldController = TextEditingController();
   late StoreList _stores;
 
   Future<void> _addStoreDialog(BuildContext context) async {
@@ -177,12 +192,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 TextField(
                   autofocus: true,
                   controller: _nameFieldController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Store name",
                     border: OutlineInputBorder(),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 TextField(
@@ -201,12 +216,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           : Colors.amber;
                     });
                   },
-                  style: TextStyle(fontFamily: "monospace"),
+                  style: const TextStyle(fontFamily: "monospace"),
                   controller: _colorFieldController,
                   decoration: InputDecoration(
                       hintText: "HEX Color",
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(
                         Icons.circle,
                         shadows: [Shadow(blurRadius: 10, color: Colors.grey)],
                       ),
@@ -216,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             actions: <Widget>[
               TextButton(
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
                 onPressed: () {
                   _nameFieldController.clear();
                   _colorFieldController.clear();
@@ -224,7 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               FilledButton(
-                child: Text('Add'),
+                child: const Text('Add'),
                 onPressed: () {
                   _stores.addStore(_nameFieldController.text, color);
                   _nameFieldController.clear();
@@ -253,10 +268,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         actions: [
           IconButton.filledTonal(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('This is a snackbar')));
-            },
+            onPressed: () => Navigator.of(context).pushNamed("/user"),
             icon: Icon(
               Icons.person_rounded,
               color: Theme.of(context).colorScheme.primary,
@@ -268,9 +280,9 @@ class _MyHomePageState extends State<MyHomePage> {
         stream: _firestoreStream,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
-            return Text("Error");
+            return const Text("Error");
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text("Loading");
+            return const Text("Loading");
           } else {
             // Get the data from firestore
             List<DocumentSnapshot> documents = snapshot.data!.docs
@@ -291,7 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       _addStoreDialog(context);
                     },
-                    child: Text("Add Store")),
+                    child: const Text("Add Store")),
               )
             ]
                 // https://stackoverflow.com/questions/21826342/how-do-i-combine-two-lists-in-dart
@@ -315,8 +327,8 @@ class StoreThing extends StatefulWidget {
 class _StoreThingState extends State<StoreThing> {
   final _controller = TextEditingController();
 
-  TextEditingController _nameFieldController = TextEditingController();
-  TextEditingController _colorFieldController = TextEditingController();
+  final TextEditingController _nameFieldController = TextEditingController();
+  final TextEditingController _colorFieldController = TextEditingController();
 
   Future<void> _editStoreDialog(BuildContext context) async {
     return showDialog(
@@ -328,7 +340,7 @@ class _StoreThingState extends State<StoreThing> {
             .substring(2, 8)
             .toUpperCase();
         String colorText = _colorFieldController.text;
-        Color color = Color(int.parse("ff${colorText}", radix: 16));
+        Color color = Color(int.parse("ff$colorText", radix: 16));
         return StatefulBuilder(builder: (context, setState) {
           return AlertDialog(
             title: const Text('Edit Store'),
@@ -338,12 +350,12 @@ class _StoreThingState extends State<StoreThing> {
                 TextField(
                   autofocus: true,
                   controller: _nameFieldController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Store name",
                     border: OutlineInputBorder(),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 TextField(
@@ -362,12 +374,12 @@ class _StoreThingState extends State<StoreThing> {
                           : Colors.amber;
                     });
                   },
-                  style: TextStyle(fontFamily: "monospace"),
+                  style: const TextStyle(fontFamily: "monospace"),
                   controller: _colorFieldController,
                   decoration: InputDecoration(
                       hintText: "HEX Color",
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(
                         Icons.circle,
                         shadows: [Shadow(blurRadius: 10, color: Colors.grey)],
                       ),
@@ -377,7 +389,6 @@ class _StoreThingState extends State<StoreThing> {
             ),
             actions: [
               TextButton(
-                child: Text('Delete'),
                 style: TextButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.error),
                 onPressed: () {
@@ -390,9 +401,10 @@ class _StoreThingState extends State<StoreThing> {
                   _colorFieldController.clear();
                   Navigator.pop(context);
                 },
+                child: const Text('Delete'),
               ),
               FilledButton(
-                child: Text('Save'),
+                child: const Text('Save'),
                 onPressed: () {
                   // store.addStore(_nameFieldController.text, color);
                   widget.store.UpdateColor(color);
@@ -454,7 +466,7 @@ class _StoreThingState extends State<StoreThing> {
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
-                              SizedBox(
+                              const SizedBox(
                                 width: 8,
                               ),
                               Text(
@@ -493,13 +505,9 @@ class _StoreThingState extends State<StoreThing> {
                     child: TextField(
                       focusNode: myFocusNode,
                       controller: _controller,
-                      onEditingComplete: () {
-                        FocusScope.of(context).unfocus();
-                      },
                       onSubmitted: (value) {
                         widget.store.AddItem(value);
                         _controller.clear();
-                        myFocusNode.requestFocus();
                       },
                       onTapOutside: (event) {
                         FocusScope.of(context).unfocus();
@@ -507,8 +515,8 @@ class _StoreThingState extends State<StoreThing> {
                       decoration: InputDecoration(
                         fillColor: colorScheme.secondaryContainer,
                         filled: true,
-                        prefixIcon: Icon(Icons.add),
-                        border: OutlineInputBorder(
+                        prefixIcon: const Icon(Icons.add),
+                        border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                         hintText: "New item",
@@ -538,33 +546,260 @@ class _StoreThingState extends State<StoreThing> {
                               onChanged: (_) {},
                             ),
                           ),
-                          Text(
-                            key,
-                            style: TextStyle(
-                                color: widget.store.map[key]!['value']
-                                    ? Color.fromARGB(
-                                        // colorScheme.onPrimaryContainer.alpha,
-                                        100,
-                                        colorScheme.onPrimaryContainer.red,
-                                        colorScheme.onPrimaryContainer.green,
-                                        colorScheme.onPrimaryContainer.blue)
-                                    : colorScheme.onPrimaryContainer,
-                                fontSize: 18,
-                                decoration: widget.store.map[key]!['value']
-                                    ? TextDecoration.lineThrough
-                                    : TextDecoration.none),
+                          Flexible(
+                            child: Text(
+                              key,
+                              style: TextStyle(
+                                  color: widget.store.map[key]!['value']
+                                      ? Color.fromARGB(
+                                          // colorScheme.onPrimaryContainer.alpha,
+                                          100,
+                                          colorScheme.onPrimaryContainer.red,
+                                          colorScheme.onPrimaryContainer.green,
+                                          colorScheme.onPrimaryContainer.blue)
+                                      : colorScheme.onPrimaryContainer,
+                                  fontSize: 18,
+                                  decoration: widget.store.map[key]!['value']
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
                           )
                         ],
                       ),
                     ),
+                  const SizedBox(
+                    height: 10,
+                  )
                 ],
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
         ],
+      ),
+    );
+  }
+}
+
+// The login page
+class Login extends StatelessWidget {
+  const Login({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    TextEditingController nameFieldController = TextEditingController();
+    TextEditingController pwdFieldController = TextEditingController();
+
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              LayoutBuilder(builder: (context, constraint) {
+                return Icon(
+                  Icons.shopping_bag_outlined,
+                  size: 200,
+                  color: Theme.of(context).colorScheme.primary,
+                );
+              }),
+              const SizedBox(
+                height: 20,
+              ),
+              TextField(
+                controller: nameFieldController,
+                decoration: const InputDecoration(
+                  fillColor: Colors.white,
+                  filled: true,
+                  prefixIcon: Icon(Icons.email),
+                  border: OutlineInputBorder(
+                      // borderRadius: ,
+                      ),
+                  hintText: "E-Mail",
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextField(
+                obscureText: true,
+                controller: pwdFieldController,
+                decoration: const InputDecoration(
+                  fillColor: Colors.white,
+                  filled: true,
+                  prefixIcon: Icon(Icons.lock),
+                  border: OutlineInputBorder(
+                      // borderRadius: ,
+                      ),
+                  hintText: "Password",
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+
+              // The button on pressed, logs-in the user to and shows Home Page
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.tonal(
+                        onPressed: () async {
+                          bool error = false;
+                          try {
+                            await FirebaseAuth.instance
+                                .createUserWithEmailAndPassword(
+                                    email: nameFieldController.text,
+                                    password: pwdFieldController.text);
+                          } catch (e) {
+                            error = true;
+                            String errorMessage = "Unknown sign up error";
+
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              duration: const Duration(seconds: 5),
+                              content: Text(
+                                errorMessage,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color:
+                                        Theme.of(context).colorScheme.onError),
+                              ),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
+                            ));
+                          }
+                          if (!error) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              duration: const Duration(seconds: 5),
+                              content: Text(
+                                "Signup Successful! Please log in.",
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
+                              ),
+                              backgroundColor: Colors.green,
+                            ));
+                          }
+                        },
+                        // Navigator.of(context).pushNamed("/signUp"),
+                        child: const Text("SignUp")),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: FilledButton(
+                        onPressed: () async {
+                          bool error = false;
+                          try {
+                            await FirebaseAuth.instance
+                                .signInWithEmailAndPassword(
+                                    email: nameFieldController.text,
+                                    password: pwdFieldController.text);
+                          } on FirebaseAuthException catch (e) {
+                            error = true;
+                            String errorMessage = "Unknown login error";
+                            if (e.code == 'user-not-found') {
+                              errorMessage = "No user found for that email.";
+                            } else if (e.code == 'invalid-credential') {
+                              errorMessage =
+                                  "Wrong password provided for that user.";
+                            } else if (e.code == 'invalid-email') {
+                              errorMessage = "Email is badly formatted.";
+                            }
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              duration: const Duration(seconds: 5),
+                              content: Text(
+                                errorMessage,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color:
+                                        Theme.of(context).colorScheme.onError),
+                              ),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
+                            ));
+                          }
+                          if (!error) {
+                            Navigator.of(context).pushReplacementNamed("/home");
+                          }
+                        },
+                        child: const Text("Login")),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// The user info page
+class UserInfo extends StatelessWidget {
+  const UserInfo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text(
+          "User info",
+          style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimary),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        actions: [
+          IconButton.filledTonal(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: Icon(
+              Icons.close,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          )
+        ],
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              LayoutBuilder(builder: (context, constraint) {
+                return Icon(
+                  Icons.question_mark_rounded,
+                  size: 200,
+                  color: Theme.of(context).colorScheme.primary,
+                );
+              }),
+              FilledButton(
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamed("/");
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    "Log out",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
