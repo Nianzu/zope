@@ -13,12 +13,14 @@ var db;
 // ✔ Color variable in database
 // ✔ Update store color
 // ✔ Sort variables (date)
-// Deal with checked variables (cleanup)
+// ✔ Deal with checked variables (cleanup)
 // ✔ Add new store
 // ✔ Delete stores
 // Delete items
-// Login
+// ✔ Login
 // Use geo data to sort stores
+// Google Assistant tie-ins
+// Personal and shared lists
 bool logged_in = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
