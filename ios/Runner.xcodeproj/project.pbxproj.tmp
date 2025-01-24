@@ -159,13 +159,17 @@
 				<string>NO</string>
 				<key>INFOPLIST_FILE</key>
 				<string>Runner/Info.plist</string>
+				<key>INFOPLIST_KEY_CFBundleDisplayName</key>
+				<string>Zope</string>
+				<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+				<string>13.0</string>
 				<key>LD_RUNPATH_SEARCH_PATHS</key>
 				<array>
 					<string>$(inherited)</string>
 					<string>@executable_path/Frameworks</string>
 				</array>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.example.zopeApplication</string>
+				<string>com.nicozucca.zope</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
@@ -209,7 +213,9 @@
 			<key>buildActionMask</key>
 			<string>2147483647</string>
 			<key>files</key>
-			<array/>
+			<array>
+				<string>5A4BD4822D42F030004CF422</string>
+			</array>
 			<key>isa</key>
 			<string>PBXResourcesBuildPhase</string>
 			<key>runOnlyForDeploymentPostprocessing</key>
@@ -316,6 +322,8 @@
 				<string>1</string>
 				<key>GENERATE_INFOPLIST_FILE</key>
 				<string>YES</string>
+				<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+				<string>13.0</string>
 				<key>MARKETING_VERSION</key>
 				<string>1.0</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
@@ -348,6 +356,8 @@
 				<string>1</string>
 				<key>GENERATE_INFOPLIST_FILE</key>
 				<string>YES</string>
+				<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+				<string>13.0</string>
 				<key>MARKETING_VERSION</key>
 				<string>1.0</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
@@ -376,6 +386,8 @@
 				<string>1</string>
 				<key>GENERATE_INFOPLIST_FILE</key>
 				<string>YES</string>
+				<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+				<string>13.0</string>
 				<key>MARKETING_VERSION</key>
 				<string>1.0</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
@@ -443,6 +455,31 @@
 		<dict>
 			<key>fileRef</key>
 			<string>3B3967151E833CAA004F5970</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>5A4BD4812D42F030004CF422</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>GoogleService-Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>5A4BD4822D42F030004CF422</key>
+		<dict>
+			<key>fileRef</key>
+			<string>5A4BD4812D42F030004CF422</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>5A4BD4832D42F030004CF422</key>
+		<dict>
+			<key>fileRef</key>
+			<string>5A4BD4812D42F030004CF422</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
@@ -695,6 +732,7 @@
 			<array>
 				<string>97C147011CF9000F007C117D</string>
 				<string>3B3967161E833CAA004F5970</string>
+				<string>5A4BD4832D42F030004CF422</string>
 				<string>97C146FE1CF9000F007C117D</string>
 				<string>97C146FC1CF9000F007C117D</string>
 			</array>
@@ -770,6 +808,7 @@
 				<string>1498D2331E8E89220040F4C2</string>
 				<string>74858FAE1ED2DC5600515810</string>
 				<string>74858FAD1ED2DC5600515810</string>
+				<string>5A4BD4812D42F030004CF422</string>
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
@@ -1119,13 +1158,17 @@
 				<string>NO</string>
 				<key>INFOPLIST_FILE</key>
 				<string>Runner/Info.plist</string>
+				<key>INFOPLIST_KEY_CFBundleDisplayName</key>
+				<string>Zope</string>
+				<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+				<string>13.0</string>
 				<key>LD_RUNPATH_SEARCH_PATHS</key>
 				<array>
 					<string>$(inherited)</string>
 					<string>@executable_path/Frameworks</string>
 				</array>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.example.zopeApplication</string>
+				<string>com.nicozucca.zope</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
@@ -1158,13 +1201,17 @@
 				<string>NO</string>
 				<key>INFOPLIST_FILE</key>
 				<string>Runner/Info.plist</string>
+				<key>INFOPLIST_KEY_CFBundleDisplayName</key>
+				<string>Zope</string>
+				<key>IPHONEOS_DEPLOYMENT_TARGET</key>
+				<string>13.0</string>
 				<key>LD_RUNPATH_SEARCH_PATHS</key>
 				<array>
 					<string>$(inherited)</string>
 					<string>@executable_path/Frameworks</string>
 				</array>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.example.zopeApplication</string>
+				<string>com.nicozucca.zope</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
