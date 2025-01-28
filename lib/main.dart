@@ -23,9 +23,7 @@ var db;
 bool logged_in = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
   // await FirebaseAuth.instance.signInWithEmailAndPassword(
   //     email: "test1@gmail.com", password: "password");
   // await FirebaseAuth.instance.createUserWithEmailAndPassword(
