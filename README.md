@@ -1,24 +1,16 @@
-# zope
+# zope_application
 
-## Setup
+A new Flutter project.
 
-1. Setup the dev container
+## Getting Started
 
-2. Install android studio
-Make sure x11-forwarding is working:
-  `xhost +local:docker`
-```
-cd /workspaces/android-studio/bin
-./studio.sh
-``` 
+This project is a starting point for a Flutter application.
 
-3. run flutterfire configure
-```
-curl -sL https://firebase.tools | bash
-firebase login
-dart pub global activate flutterfire_cli
-export PATH="$PATH":"$HOME/.pub-cache/bin"
-cd /workspaces/zope/zope_application/
-flutterfire configure
-flutter pub get
-```
+A few resources to get you started if this is your first Flutter project:
+
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
